@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<head>
+  <title>NER</title>
+  <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<h1><center>اﻟﺘﻌﺮﻑ ﻋﻠﻰ اﻟﻜﻴﺎﻧﺎﺕ اﻟﻤﺴﻤﺎﺓ</center> </h1>
+<body>
+  <div class="container">
+    <div class="language-buttons">
+      <button class="language-button" onclick="gotoarabic()">عربي</button>
+      <button class="language-button" onclick="gotoenglish()" >انكليزي</button>
+      <button class="language-button" onclick="infoarabic()">معلومات</button>
+    
+      <button class="language-button" onclick="read_keyboard()">قراءة ملف</button>
+    </div>
+    <div class="content">
+      <textarea id="inputText" placeholder="أدخل النص"></textarea>
+      <button id="eng_btn">تنبؤ</button>
+    </div>
+    <div id="predictions"></div>
+    <video id="background-video" autoplay muted loop>
+      <source src="Images/technological-cyber-interface-live-wallpaper.mp4" type="video/mp4">
+    
+  </video>
+</body>
+</html>
+<script>
+function read_keyboard() {
+  const inputElement = document.createElement("input");
+  inputElement.type = "file";
+
+  inputElement.addEventListener("change", async (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+      const content = e.target.result;
+      console.log(content);
+      // Process the content as needed
+      $("#inputText").html(content);
+    };
+
+    reader.readAsText(file);
+  });
+
+  inputElement.click();
+}
+
+function gotoarabic() {
+    window.location.href = 'arabicindex.html';
+  }
+
+   function gotoenglish() {
+    window.location.href = 'englishindex.html';
+  }
+    function infoarabic() {
+    window.location.href = 'infoarabic.html';
+  }
+
+
+
+
+
+</script>
+<script>
+ 
+
+
+
+
+
+
+  $("#eng_btn").on("click",function(){
+    var inputText = $("#inputText").val();
+    $.ajax({
+      url: 'http://localhost:5000/predictarabic',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      data: JSON.stringify({ text: inputText }),
+      success: function(data) {
+        Object.entries(data.predictions).forEach(([key, value]) => {
+          console.log(value['entity']);
+          console.log(value['word']);
+          $("#predictions").innerHTML = '';
+
+          if (data.predictions.length === 0) {
+            resultsDiv.textContent = 'No results found.';
+          } else{
+            const table = document.createElement('table');
+            const tableHeader = document.createElement('tr');
+            const thWord = document.createElement('th');
+            const thLabel = document.createElement('th');
+
+            thWord.textContent = 'Word';
+            thLabel.textContent = 'Label';
+
+            tableHeader.appendChild(thWord);
+            tableHeader.appendChild(thLabel);
+            table.appendChild(tableHeader);
+
+            data.predictions.forEach(result => {
+              const word = result.word;
+              const label = result.entity;
+              const tableRow = document.createElement('tr');
+              const tdWord = document.createElement('td');
+              const tdLabel = document.createElement('td');
+
+              tdWord.textContent = word;
+              tdLabel.textContent = label;
+
+              tableRow.appendChild(tdWord);
+              tableRow.appendChild(tdLabel);
+              table.appendChild(tableRow);
+            });
+
+            $("#predictions").html(table);
+
+
+
+          }
+
+
+
+          
+        });
+        
+      }
+    })
+
+  })
+
+
+</script>
